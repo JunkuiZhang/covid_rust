@@ -1,0 +1,3 @@
+// Settings...
+pub const POP_NUM: u64 = 600;
+pub const INFECT_RADIUS: f64 = 0.05;

@@ -1,5 +1,5 @@
 [package]
-name = "Covid"
+name = "covid"
 version = "0.1.0"
 authors = ["junkuizhang"]
 edition = "2018"

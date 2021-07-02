@@ -1,10 +1,11 @@
-use sdl2::{EventPump};
+use sdl2::EventPump;
 use sdl2::render::WindowCanvas;
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 
 mod game_systems;
+mod game_data;
 
 
 pub struct Game {

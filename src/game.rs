@@ -8,9 +8,10 @@ use sdl2::pixels::Color;
 use sdl2::render::WindowCanvas;
 use sdl2::EventPump;
 
-use self::game_data::Vector;
+use self::game_data::{EntityStatus, Vector};
 use self::game_status::GameStatus;
-use self::game_systems::entity_move2;
+use self::game_systems::entity_color;
+use crate::game::game_systems::entity_decision;
 use crate::settings::POP_NUM;
 use crate::settings::WINDOW_WIDTH;
 
@@ -23,6 +24,8 @@ pub(crate) struct Game {
     status: GameStatus,
     running: bool,
     time_stamp: SystemTime,
+    rng: ThreadRng,
+    fps: u32,
 
     // Systems
     events_pump: EventPump,
@@ -30,7 +33,9 @@ pub(crate) struct Game {
 
     // Data
     position_vector_list: [Vector; POP_NUM as usize],
-    destination_vector_list: [Vector; POP_NUM as usize],
+    pos_vec_copy: [Vector; POP_NUM as usize],
+    status_list: [EntityStatus; POP_NUM as usize],
+    direction_vector_list: [Vector; POP_NUM as usize],
 }
 
 impl Game {
@@ -49,25 +54,38 @@ impl Game {
 
         let mut rng = rand::thread_rng();
         let mut position_vector_list = [Vector::new(0.0, 0.0); POP_NUM as usize];
-        let mut destination_vector_list = [Vector::new(0.0, 0.0); POP_NUM as usize];
+        let mut status_list = [EntityStatus {
+            is_alive: true,
+            is_aware: false,
+            is_infected: false,
+        }; POP_NUM as usize];
+        let mut direction_vector_list = [Vector::new(0.0, 0.0); POP_NUM as usize];
         for num in 0..POP_NUM as usize {
             position_vector_list[num] = Vector::new(
                 rng.gen_range(0.0..1.0) * WINDOW_WIDTH as f64,
                 rng.gen_range(0.0..1.0) * WINDOW_WIDTH as f64,
             );
-            let mut des = Vector::new(rng.gen_range(0.0..1.0), rng.gen_range(0.0..1.0));
-            des.normalize();
-            destination_vector_list[num] = des;
+            if rng.gen_bool(0.5) {
+                status_list[num].is_aware = true;
+            }
+            let mut dir = Vector::new(rng.gen_range(-1.0..1.0), rng.gen_range(-1.0..1.0));
+            dir.normalize();
+            direction_vector_list[num] = dir;
         }
+        let pos_vec_copy = position_vector_list.clone();
 
         Game {
             status: GameStatus::Paused,
             running: true,
             time_stamp,
+            rng,
+            fps: 0,
             events_pump,
             canvas,
             position_vector_list,
-            destination_vector_list,
+            pos_vec_copy,
+            status_list,
+            direction_vector_list,
         }
     }
 
@@ -84,8 +102,9 @@ impl Game {
         self.canvas.clear();
         for num in 0..POP_NUM as usize {
             let (x, y) = self.position_vector_list[num].get_nums();
+            let entity_status = &self.status_list[num];
             self.canvas
-                .filled_circle(x, y, 7, Color::RGB(0, 150, 0))
+                .filled_circle(x, y, 7, entity_color(entity_status))
                 .unwrap();
         }
         self.canvas.present();
@@ -114,44 +133,58 @@ impl Game {
 
     fn update_render(&mut self) {
         let start_time;
-        let mut time_cost = 0.01;
+        let mut duration = 0.01;
         self.canvas.set_draw_color(Color::WHITE);
         self.canvas.clear();
         match self.status {
             GameStatus::Running => {
                 start_time = SystemTime::now();
-                time_cost = start_time
+                duration = start_time
                     .duration_since(self.time_stamp)
                     .unwrap()
                     .as_secs_f64();
                 for num in 0..POP_NUM as usize {
-                    entity_move2(
-                        &mut self.position_vector_list,
-                        &self.destination_vector_list,
-                        time_cost,
+                    let entity_status = &self.status_list[num];
+                    if !entity_status.is_alive {
+                        continue;
+                    }
+                    let pos_vec = &mut self.position_vector_list[num];
+                    let dir_vec = &mut self.direction_vector_list[num];
+                    entity_decision(
+                        num,
+                        pos_vec,
+                        dir_vec,
+                        duration,
+                        entity_status,
+                        &self.pos_vec_copy,
+                        &mut self.rng,
                     );
-                    let (x, y) = self.position_vector_list[num].get_nums();
+                    let (x, y) = pos_vec.get_nums();
                     self.canvas
-                        .filled_circle(x, y, 5, Color::RGB(0, 150, 0))
+                        .filled_circle(x, y, 5, entity_color(entity_status))
                         .unwrap();
                 }
+                self.pos_vec_copy = self.position_vector_list.clone();
             }
             GameStatus::Paused => {
                 start_time = SystemTime::now();
-                time_cost = start_time
+                duration = start_time
                     .duration_since(self.time_stamp)
                     .unwrap()
                     .as_secs_f64();
                 for num in 0..POP_NUM as usize {
                     let (x, y) = self.position_vector_list[num].get_nums();
+                    let entity_status = &self.status_list[num];
                     self.canvas
-                        .filled_circle(x, y, 5, Color::RGB(0, 150, 0))
+                        .filled_circle(x, y, 5, entity_color(entity_status))
                         .unwrap();
                 }
             }
         }
         self.canvas.present();
-        println!("FPS: {}", (1.0 / time_cost).round());
+        self.fps += (1.0 / duration).round() as u32;
+        self.fps /= 2;
+        println!("FPS: {}", self.fps);
         self.time_stamp = start_time;
     }
 }

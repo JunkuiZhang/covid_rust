@@ -1,9 +1,16 @@
-use std::ops::{Add, AddAssign, Mul};
+use std::ops::{Add, AddAssign, Mul, Sub};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Vector {
     pub x: f64,
     pub y: f64,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct EntityStatus {
+    pub is_alive: bool,
+    pub is_aware: bool,
+    pub is_infected: bool,
 }
 
 impl Vector {
@@ -32,6 +39,10 @@ impl Vector {
         let num_y = self.y.round() as i16;
         return (num_x, num_y);
     }
+
+    pub fn distance_with(&self, vec: &Vector) -> f64 {
+        return ((self.x - vec.x).powf(2.0) + (self.y - vec.y).powf(2.0)).powf(0.5);
+    }
 }
 
 impl Add<Vector> for Vector {
@@ -46,6 +57,14 @@ impl AddAssign for Vector {
     fn add_assign(&mut self, rhs: Self) {
         self.x += rhs.x;
         self.y += rhs.y;
+    }
+}
+
+impl Sub<Vector> for Vector {
+    type Output = Vector;
+
+    fn sub(self, rhs: Vector) -> Self::Output {
+        return Vector::new(self.x - rhs.x, self.y - rhs.y);
     }
 }
 

@@ -66,11 +66,7 @@ pub fn entity_color(entity_status: &EntityStatus) -> Color {
     return Color::RGB(100, 100, 100);
 }
 
-pub fn entity_get_dir(
-    self_num: usize,
-    pos: &Vector,
-    neighbor_list: &[Vector]
-) -> Option<Vector> {
+pub fn entity_get_dir(self_num: usize, pos: &Vector, neighbor_list: &[Vector]) -> Option<Vector> {
     let mut neighbor_near = Vec::new();
     for i in 0..POP_NUM as usize {
         if i == self_num {

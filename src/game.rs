@@ -190,9 +190,10 @@ impl Game {
             }
         }
         self.canvas.present();
-        self.fps += (1.0 / duration).round() as u32;
+        let current_fps = (1.0 / duration).round();
+        self.fps += current_fps as u32;
         self.fps /= 2;
-        println!("FPS: {}", self.fps);
+        println!("AVE FPS: {}, FPS: {}", self.fps, current_fps);
         self.time_stamp = start_time;
     }
 }

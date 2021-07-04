@@ -28,12 +28,6 @@ impl Vector {
         self.y /= vec_mod;
     }
 
-    pub fn set_direction_length(&mut self, target_num: f64) {
-        let vec_mod = self.vector_mod();
-        self.x = self.x / vec_mod * target_num;
-        self.y = self.y / vec_mod * target_num;
-    }
-
     pub fn get_nums(&self) -> (i16, i16) {
         let num_x = self.x.round() as i16;
         let num_y = self.y.round() as i16;

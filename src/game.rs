@@ -12,8 +12,8 @@ use self::game_data::{EntityStatus, Vector};
 use self::game_status::GameStatus;
 use self::game_systems::entity_color;
 use crate::game::game_systems::entity_decision;
-use crate::settings::POP_NUM;
 use crate::settings::WINDOW_WIDTH;
+use crate::settings::{INFECT_RADIUS, POP_NUM};
 
 mod game_data;
 mod game_status;
@@ -132,8 +132,8 @@ impl Game {
     }
 
     fn update_render(&mut self) {
-        let start_time;
-        let mut duration: f64 = 0.01;
+        let mut start_time;
+        let mut duration;
         self.canvas.set_draw_color(Color::WHITE);
         self.canvas.clear();
         match self.status {
@@ -163,6 +163,11 @@ impl Game {
                     self.canvas
                         .filled_circle(x, y, 5, entity_color(entity_status))
                         .unwrap();
+                    if entity_status.is_aware {
+                        self.canvas
+                            .circle(x, y, INFECT_RADIUS.round() as i16, Color::RGB(0, 0, 170))
+                            .unwrap();
+                    }
                 }
                 self.pos_vec_copy = self.position_vector_list.clone();
             }

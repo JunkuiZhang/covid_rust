@@ -26,6 +26,8 @@ pub fn entity_decision(
                 if rng.gen_bool(0.1) {
                     dir_res = Vector::new(rng.gen_range(-1.0..1.0), rng.gen_range(-1.0..1.0));
                     dir_res.normalize();
+                    dir_res += *dir;
+                    dir_res.normalize();
                     *dir = dir_res;
                 }
             }
@@ -33,6 +35,8 @@ pub fn entity_decision(
     } else {
         if rng.gen_bool(0.1) {
             dir_res = Vector::new(rng.gen_range(-1.0..1.0), rng.gen_range(-1.0..1.0));
+            dir_res.normalize();
+            dir_res += *dir;
             dir_res.normalize();
             *dir = dir_res
         }
@@ -72,7 +76,7 @@ pub fn entity_get_dir(self_num: usize, pos: &Vector, neighbor_list: &[Vector]) -
         if i == self_num {
             continue;
         }
-        if pos.distance_with(&neighbor_list[i]) < INFECT_RADIUS {
+        if pos.distance_with(&neighbor_list[i]) < INFECT_RADIUS * 1.5 {
             neighbor_near.push(*pos - neighbor_list[i]);
         }
     }

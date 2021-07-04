@@ -61,13 +61,25 @@ pub fn entity_move(pos: &mut Vector, dir: &Vector, duration: f64) {
 }
 
 pub fn entity_color(entity_status: &EntityStatus) -> Color {
+    let mut color = Color::RGB(100, 100, 100);
     if entity_status.is_aware {
-        return Color::RGB(0, 0, 170);
+        color = Color::RGB(0, 0, 170);
     }
     if entity_status.is_infected {
-        return Color::RGB(170, 0, 0);
+        color = Color::RGB(170, 0, 0);
     }
-    return Color::RGB(100, 100, 100);
+    return color;
+}
+
+pub fn entity_circle_color(entity_status: &EntityStatus) -> Option<Color> {
+    let mut color = None;
+    if entity_status.is_infected {
+        color = Some(Color::RGB(170, 0, 0));
+    }
+    if entity_status.is_aware {
+        color = Some(Color::RGB(0, 0, 170));
+    }
+    return color;
 }
 
 pub fn entity_get_dir(self_num: usize, pos: &Vector, neighbor_list: &[Vector]) -> Option<Vector> {

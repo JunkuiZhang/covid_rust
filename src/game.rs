@@ -10,10 +10,10 @@ use sdl2::EventPump;
 
 use self::game_data::{EntityStatus, Vector};
 use self::game_status::GameStatus;
-use self::game_systems::entity_color;
-use crate::game::game_systems::entity_decision;
-use crate::settings::WINDOW_WIDTH;
-use crate::settings::{INFECT_RADIUS, POP_NUM};
+use crate::game::game_systems::{entity_circle_color, entity_color, entity_decision};
+use crate::settings::{
+    INFECT_RADIUS, INITIAL_AWARE_PARTION, INITIAL_INFECTED_PARTION, POP_NUM, WINDOW_WIDTH,
+};
 
 mod game_data;
 mod game_status;
@@ -65,8 +65,11 @@ impl Game {
                 rng.gen_range(0.0..1.0) * WINDOW_WIDTH as f64,
                 rng.gen_range(0.0..1.0) * WINDOW_WIDTH as f64,
             );
-            if rng.gen_bool(0.5) {
+            if rng.gen_bool(INITIAL_AWARE_PARTION) {
                 status_list[num].is_aware = true;
+            }
+            if rng.gen_bool(INITIAL_INFECTED_PARTION) {
+                status_list[num].is_infected = true;
             }
             let mut dir = Vector::new(rng.gen_range(-1.0..1.0), rng.gen_range(-1.0..1.0));
             dir.normalize();
@@ -100,13 +103,6 @@ impl Game {
     fn pre_render(&mut self) {
         self.canvas.set_draw_color(Color::WHITE);
         self.canvas.clear();
-        for num in 0..POP_NUM as usize {
-            let (x, y) = self.position_vector_list[num].get_nums();
-            let entity_status = &self.status_list[num];
-            self.canvas
-                .filled_circle(x, y, 7, entity_color(entity_status))
-                .unwrap();
-        }
         self.canvas.present();
     }
 
@@ -124,7 +120,7 @@ impl Game {
                     keycode: Some(Keycode::Space),
                     ..
                 } => {
-                    self.status = self.status.toggle();
+                    self.status.toggle();
                 }
                 _ => {}
             }
@@ -163,9 +159,9 @@ impl Game {
                     self.canvas
                         .filled_circle(x, y, 5, entity_color(entity_status))
                         .unwrap();
-                    if entity_status.is_aware {
+                    if let Some(color) = entity_circle_color(entity_status) {
                         self.canvas
-                            .circle(x, y, INFECT_RADIUS.round() as i16, Color::RGB(0, 0, 170))
+                            .circle(x, y, INFECT_RADIUS.round() as i16, color)
                             .unwrap();
                     }
                 }
@@ -183,6 +179,11 @@ impl Game {
                     self.canvas
                         .filled_circle(x, y, 5, entity_color(entity_status))
                         .unwrap();
+                    if let Some(color) = entity_circle_color(entity_status) {
+                        self.canvas
+                            .circle(x, y, INFECT_RADIUS.round() as i16, color)
+                            .unwrap();
+                    }
                 }
             }
         }

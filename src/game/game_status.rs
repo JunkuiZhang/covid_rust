@@ -4,13 +4,13 @@ pub enum GameStatus {
 }
 
 impl GameStatus {
-    pub fn toggle(&self) -> Self {
+    pub fn toggle(&mut self) {
         match *self {
             GameStatus::Paused => {
-                return GameStatus::Running;
+                *self = GameStatus::Running;
             }
             GameStatus::Running => {
-                return GameStatus::Paused;
+                *self = GameStatus::Paused;
             }
         }
     }

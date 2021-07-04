@@ -132,8 +132,8 @@ impl Game {
     }
 
     fn update_render(&mut self) {
-        let mut start_time;
-        let mut duration;
+        let start_time;
+        let duration;
         self.canvas.set_draw_color(Color::WHITE);
         self.canvas.clear();
         match self.status {

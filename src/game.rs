@@ -8,11 +8,12 @@ use sdl2::pixels::Color;
 use sdl2::render::WindowCanvas;
 use sdl2::EventPump;
 
-use self::game_data::{EntityStatus, Vector};
+use self::game_data::{Awareness, EntityStatus, Vector};
 use self::game_status::GameStatus;
 use crate::game::game_systems::{entity_circle_color, entity_color, entity_decision};
 use crate::settings::{
-    INFECT_RADIUS, INITIAL_AWARE_PARTION, INITIAL_INFECTED_PARTION, POP_NUM, WINDOW_WIDTH,
+    AWARE_ENTITY_MOVE_SPPED, INFECT_RADIUS, INITIAL_AWARE_PARTION, INITIAL_INFECTED_PARTION,
+    NOT_AWARE_ENTITY_MOVE_MUL, POP_NUM, WINDOW_WIDTH,
 };
 
 mod game_data;
@@ -56,7 +57,7 @@ impl Game {
         let mut position_vector_list = [Vector::new(0.0, 0.0); POP_NUM as usize];
         let mut status_list = [EntityStatus {
             is_alive: true,
-            is_aware: false,
+            is_aware: Awareness::NotAware(AWARE_ENTITY_MOVE_SPPED * NOT_AWARE_ENTITY_MOVE_MUL),
             is_infected: false,
         }; POP_NUM as usize];
         let mut direction_vector_list = [Vector::new(0.0, 0.0); POP_NUM as usize];
@@ -66,7 +67,7 @@ impl Game {
                 rng.gen_range(0.0..1.0) * WINDOW_WIDTH as f64,
             );
             if rng.gen_bool(INITIAL_AWARE_PARTION) {
-                status_list[num].is_aware = true;
+                status_list[num].is_aware = Awareness::Aware(AWARE_ENTITY_MOVE_SPPED);
             }
             if rng.gen_bool(INITIAL_INFECTED_PARTION) {
                 status_list[num].is_infected = true;

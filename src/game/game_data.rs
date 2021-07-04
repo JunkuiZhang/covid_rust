@@ -9,8 +9,14 @@ pub struct Vector {
 #[derive(Debug, Clone, Copy)]
 pub struct EntityStatus {
     pub is_alive: bool,
-    pub is_aware: bool,
+    pub is_aware: Awareness,
     pub is_infected: bool,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum Awareness {
+    Aware(f64),
+    NotAware(f64),
 }
 
 impl Vector {
@@ -19,7 +25,7 @@ impl Vector {
     }
 
     fn vector_mod(&self) -> f64 {
-        return (self.x.powf(2.0) + self.y.powf(2.0)).powf(0.5);
+        return (self.x.powi(2) + self.y.powi(2)).powf(0.5);
     }
 
     pub fn normalize(&mut self) {
@@ -35,7 +41,7 @@ impl Vector {
     }
 
     pub fn distance_with(&self, vec: &Vector) -> f64 {
-        return ((self.x - vec.x).powf(2.0) + (self.y - vec.y).powf(2.0)).powf(0.5);
+        return ((self.x - vec.x).powi(2) + (self.y - vec.y).powi(2)).powf(0.5);
     }
 }
 

@@ -21,7 +21,8 @@ pub fn entity_decision(
     neighbor_list: &[Vector],
     rng: &mut ThreadRng,
 ) {
-    let (near_list, infection_meet, aware_meet) = entity_get_nears(self_num, pos, neighbor_list, status_list);
+    let (near_list, infection_meet, aware_meet) =
+        entity_get_nears(self_num, pos, neighbor_list, status_list);
     let mut speed;
     match status.is_aware {
         Awareness::Aware(s) => {

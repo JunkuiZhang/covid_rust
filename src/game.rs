@@ -140,7 +140,7 @@ impl Game {
                     .unwrap()
                     .as_secs_f64();
                 for num in 0..POP_NUM as usize {
-                    let entity_status = &self.status_list[num];
+                    let mut entity_status = self.status_list[num].clone();
                     if !entity_status.is_alive {
                         continue;
                     }
@@ -151,15 +151,17 @@ impl Game {
                         pos_vec,
                         dir_vec,
                         duration,
-                        entity_status,
+                        &mut entity_status,
+                        &self.status_list,
                         &self.pos_vec_copy,
                         &mut self.rng,
                     );
+                    self.status_list[num] = entity_status;
                     let (x, y) = pos_vec.get_nums();
                     self.canvas
-                        .filled_circle(x, y, 5, entity_color(entity_status))
+                        .filled_circle(x, y, 5, entity_color(&entity_status))
                         .unwrap();
-                    if let Some(color) = entity_circle_color(entity_status) {
+                    if let Some(color) = entity_circle_color(&entity_status) {
                         self.canvas
                             .circle(x, y, INFECT_RADIUS.round() as i16, color)
                             .unwrap();

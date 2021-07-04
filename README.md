@@ -1,0 +1,1 @@
+# Covid Infection Model in Rust
